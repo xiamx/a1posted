@@ -1,8 +1,8 @@
 package a1posted;
 
 /*
- *   STUDENT NAME      :  
- *   STUDENT ID        :
+ *   STUDENT NAME      : Meng Xuan Xia 
+ *   STUDENT ID        : 260524129 
  *   
  *   If you have any issues that you wish the T.A.s to consider, then you
  *   should list them here.   If you discussed on the assignment in depth 
@@ -19,6 +19,14 @@ public class NaturalNumber  {
 	int	base;       
 
 	private LinkedList<Integer>  coefficients;
+
+	public LinkedList<Integer> getCoefficients(){
+		return this.coefficients;
+	}
+
+	public void setCoefficients (LinkedList<Integer> coefficients){
+		this.coefficients = coefficients;
+	}
 
 	//   For any base and any positive integer, the representation of that positive 
 	//   integer as a sum of powers of that base is unique.  
@@ -69,7 +77,6 @@ public class NaturalNumber  {
 		}
 	}
 
-
 		
 	public NaturalNumber add( NaturalNumber  second){
 				
@@ -78,7 +85,40 @@ public class NaturalNumber  {
 		NaturalNumber sum = new NaturalNumber( this.base );
 	
 		//   ADD YOUR CODE HERE
-				
+		LinkedList<Integer> sumCoefficients = new LinkedList<Integer> ();
+		LinkedList<Integer> firstCoefficients = this.coefficients;
+		LinkedList<Integer> secondCoefficients = second.getCoefficients();
+		//   First we need to make sure both number have equal number
+		//   of coefficients, we add zeros to the one of smaller size
+		//
+
+		if (firstCoefficients.size() > secondCoefficients.size()){
+			while (firstCoefficients.size()>secondCoefficients.size()){
+			       secondCoefficients.addLast(new Integer(0));
+			}
+		}else if (secondCoefficients.size() > firstCoefficients.size()){
+			while (secondCoefficients.size()>firstCoefficients.size()){
+				firstCoefficients.addLast(new Integer(0));
+			}
+		}else{}
+
+		int i;
+		int carry = 0;
+		for (i =  0; i < this.coefficients.size() ; i++){
+			sumCoefficients.addLast(
+					(firstCoefficients.get(i) + secondCoefficients.get(i) + carry) % this.base );
+			carry = ((firstCoefficients.get(i) + secondCoefficients.get(i) + carry)/ this.base);
+		}
+
+		sumCoefficients.addLast(carry);
+
+		// Now remove any leading 0s
+		//
+
+		while (sumCoefficients.peekLast()==0){
+			sumCoefficients.removeLast();
+		}
+		sum.setCoefficients(sumCoefficients);	
 		return sum;		
 	}
 	
@@ -105,7 +145,51 @@ public class NaturalNumber  {
 		}
 
 		//   ADD YOUR CODE HERE
+                LinkedList<Integer> diffCoefficients = new LinkedList<Integer> ();
+                LinkedList<Integer> firstCoefficients = this.coefficients;
+                LinkedList<Integer> secondCoefficients = second.getCoefficients();
+                //   First we need to make sure both number have equal number
+                //   of coefficients, we add zeros to the one of smaller size
+                //
+
+                if (firstCoefficients.size() > secondCoefficients.size()){
+                        while (firstCoefficients.size()>secondCoefficients.size()){
+                               secondCoefficients.addLast(new Integer(0));
+                        }
+                }else if (secondCoefficients.size() > firstCoefficients.size()){
+                        while (secondCoefficients.size()>firstCoefficients.size()){
+                                firstCoefficients.addLast(new Integer(0));
+                        }
+                }else{}
+
+                int i;
+                int borrow = 0;
+		int lastborrow = 0;
+                for (i =  0; i < this.coefficients.size() ; i++){
+			// first check if first coefficient > second
+			// otherwise borrow
+
+			if (!(firstCoefficients.get(i)-borrow >= secondCoefficients.get(i))){
+				borrow = 1;
+			}else{
+				borrow = 0;
+			}
+
+                        diffCoefficients.addLast(
+                                        (firstCoefficients.get(i)+ this.base * borrow - secondCoefficients.get(i)-lastborrow ) % this.base );
+			lastborrow = borrow;
+                }
+
+
+                // Now remove any leading 0s
+                //
+
+                while (diffCoefficients.peekLast()==0){
+                        diffCoefficients.removeLast();
+                }
+                difference.setCoefficients(diffCoefficients);                                 
 		
+			
 		return difference;	
 	}
 
