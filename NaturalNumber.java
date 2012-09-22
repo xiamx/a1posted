@@ -193,7 +193,23 @@ public class NaturalNumber  {
 		return difference;	
 	}
 
-	
+	private NaturalNumber singleMultiplyStep(int digit, int startBit){
+		int carry =  0;
+		long product = 0;
+		int prodDigit = 0;
+		NaturalNumber result = new NaturalNumber(this.base);
+		for (int i = 0; i< this.coefficients.size(); i++){
+			product = (long)this.coefficients.get(i) * (long)digit;
+			prodDigit = (int)(product % base);
+			result.getCoefficients().addLast(prodDigit+carry);
+			carry = (int)(product / base);
+		}
+		result.getCoefficients().addLast(carry);
+		for (int j = 0; j<startBit; j++){
+			result.getCoefficients().addFirst(new Integer(0));
+		}
+		return result;	
+	}	
 	
 	//   The multiply method should NOT be the same as what you learned in
 	//   grade school since that method requires space proportional to the
@@ -212,11 +228,16 @@ public class NaturalNumber  {
 		NaturalNumber product	= new NaturalNumber( this.base );
 		
 		//    ADD YOUR CODE HERE
-				
+		NaturalNumber digitProduct = new NaturalNumber(this.base);
+		for (int i = 0; i < second.getCoefficients().size(); i++){
+			digitProduct = this.singleMultiplyStep(second.getCoefficients().get(i),i);
+			product = product.add(digitProduct);			
+			
+		}
 		return product;
 	}
 	
-	
+
 	//  The divide method divides 'this' by 'second' i.e. this/second.   
 	//  'this' is the "dividend", 'second' is the "divisor".
 	//  This method ignores the remainder.    
