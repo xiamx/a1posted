@@ -20,9 +20,9 @@ public class Tester {
 		 the methods in the NaturalNumber class corresponds to the 
 		 order given in the PDF specification.
 	  */
-		int base =  9;		
+				
 		int[] first  =  {5, 7, 3, 8};  // Base 10 coefficient representation for the integer number 5738
-		int[] second =  {8, 7, 8};        // Base 10 coefficient representation for the integer number 18
+		int[] second =  {1, 8};        // Base 10 coefficient representation for the integer number 18
 		
 		//  You can test the correctness of your NaturalNumber implementation 
 		//  by using Java's BigInteger class.  
@@ -35,8 +35,10 @@ public class Tester {
 		for(int i=0; i< second.length; i++)		{   
 		    secondAsString += Character.toString( (char) (second[i] + '0' ));
 		}		
-		BigInteger firstBigInteger  = new BigInteger(firstAsString,base);  
-		BigInteger secondBigInteger  = new BigInteger(secondAsString,base);  
+		BigInteger firstBigInteger  = new BigInteger(firstAsString);  
+		BigInteger secondBigInteger  = new BigInteger(secondAsString);  
+		
+		int base     = 10;   // often called "radix" 
 		
 		NaturalNumber  firstNum  = new NaturalNumber(base,first);
 		NaturalNumber  secondNum = new NaturalNumber(base,second);		
@@ -45,21 +47,21 @@ public class Tester {
 		System.out.println("second number: b = " + secondAsString);
 		
 		System.out.println("TEST FOR ADDITION (a+b) ");
-		System.out.println("Correct answer   :  " + reFormat(firstBigInteger.add(secondBigInteger),base));
+		System.out.println("Correct answer   :  " + reFormat(firstBigInteger.add(secondBigInteger)));
 		System.out.println("Your answer (a+b):  " + firstNum.add( secondNum ).toString() );
 		System.out.println("Your answer (b+a):  " + secondNum.add( firstNum ).toString() );
 		
 		System.out.println("TEST FOR MULTIPLICATION (a*b) ");
-		System.out.println("Correct answer    : " + reFormat(firstBigInteger.multiply(secondBigInteger),base));
+		System.out.println("Correct answer    : " + reFormat(firstBigInteger.multiply(secondBigInteger)));
 		System.out.println("Your answer (a*b) : " + firstNum.multiply( secondNum ).toString() );
 		System.out.println("Your answer (b*a) : " + secondNum.multiply( firstNum ).toString() );
 		
 		System.out.println("TEST FOR SUBTRACTION (a-b, where a > b)  ");
-		System.out.println("Correct answer    : " + reFormat(firstBigInteger.subtract(secondBigInteger),base));
+		System.out.println("Correct answer    : " + reFormat(firstBigInteger.subtract(secondBigInteger)));
 		System.out.println("Your answer       : " + firstNum.subtract( secondNum ).toString() );
 
 		System.out.println("TEST FOR DIVISION (a/b) ");		
-		System.out.println("Correct answer    : " + reFormat(firstBigInteger.divide(secondBigInteger),base));
+		System.out.println("Correct answer    : " + reFormat(firstBigInteger.divide(secondBigInteger)));
 		System.out.println("Your answer       : " + firstNum.divide(secondNum).toString());
 	}
 	
@@ -69,8 +71,8 @@ public class Tester {
 	 *   can use to compare with what NaturalNumber.toString() produces. 
 	 */
 
-	public static String reFormat(BigInteger bigInt,int base){
-		String bigIntStr = bigInt.toString(base);
+	public static String reFormat(BigInteger bigInt){
+		String bigIntStr = bigInt.toString();
 		String str = new String("[");		
 		for (int i = 0; i < bigIntStr.length()-1; i++){
 			str += bigIntStr.substring(i, i+1) + ", ";
