@@ -13,6 +13,7 @@ package a1posted;
  */
 
 import java.util.LinkedList;
+import java.util.Iterator;
 
 public class NaturalNumber  {
 	
@@ -76,8 +77,32 @@ public class NaturalNumber  {
 			throw new Exception();
 		}
 	}
-
+	/**
+	 * Remove leading zeroes of a given coefficients
+	 *
+	 * @param coefficients The coefficients to be trimed
+	 * @return Trimed coefficients with no leading zeros
+	 */ 
+	private LinkedList trimLeadingZero(LinkedList coefficients){
+		//obtain a working copy 
+		LinkedList result = (LinkedList)coefficients.clone();
 		
+		//iterate and romve leading zero
+		while (result.peekLast().equals(new Integer(0)) && result.size()>1){
+			result.removeLast();
+		}
+		//handle insane case
+		if (result.size()==0){
+			result.add(new Integer(0));
+		}
+		return result;
+	}
+
+	/**
+	 * Add two numbers
+	 * @param second the number to be added
+	 * @return result 
+	 */
 	public NaturalNumber add( NaturalNumber  second){
 				
 		//  initialize the sum as an empty list of coefficients
@@ -105,8 +130,11 @@ public class NaturalNumber  {
 		int i;
 		int carry = 0;
 		for (i =  0; i < this.coefficients.size() ; i++){
+			// add two digits
 			sumCoefficients.addLast(
 					(firstCoefficients.get(i) + secondCoefficients.get(i) + carry) % this.base );
+			
+			// get the carry for next digit
 			carry = ((firstCoefficients.get(i) + secondCoefficients.get(i) + carry)/ this.base);
 		}
 
@@ -114,19 +142,17 @@ public class NaturalNumber  {
 
 		// Now remove any leading 0s
 		//
+		sumCoefficients = this.trimLeadingZero(sumCoefficients);
 
-		while (sumCoefficients.peekLast()==0){
-			sumCoefficients.removeLast();
-		}
 		sum.setCoefficients(sumCoefficients);	
 		return sum;		
 	}
 	
-	/*
-	 *   The subtract method computes a.subtract(b) where a>b.
-	 *   If a<b, then it throws an exception.
+	/**
+	 * subtract self by a number
+	 * @param second the number to subtract
+	 * @return the result 
 	 */
-	
 	public NaturalNumber  subtract(NaturalNumber second) throws Exception{
 
 		//  initialize difference as an empty list of coefficients
@@ -151,7 +177,6 @@ public class NaturalNumber  {
                 //   First we need to make sure both number have equal number
                 //   of coefficients, we add zeros to the one of smaller size
                 //
-
                 if (firstCoefficients.size() > secondCoefficients.size()){
                         while (firstCoefficients.size()>secondCoefficients.size()){
                                secondCoefficients.addLast(new Integer(0));
@@ -181,19 +206,29 @@ public class NaturalNumber  {
                 }
 
 
-                // Now remove any leading 0s
+             // Now remove any leading 0s
                 //
+		diffCoefficients = this.trimLeadingZero(diffCoefficients);
 
-                while (diffCoefficients.peekLast()==0){
-                        diffCoefficients.removeLast();
-                }
                 difference.setCoefficients(diffCoefficients);                                 
 		
 			
 		return difference;	
 	}
+	/**
+	 * Do a single step multiplication
+	 *
+	 * A single step multiplication multiply the result by a single
+	 * digit and put the result on the corresponding bit location
+	 *
+	 * @param digit the digit to multiply
+	 * @param startBit the bit will the result will be placed
+	 * @return the result
+	 */
 
 	private NaturalNumber singleMultiplyStep(int digit, int startBit){
+		// below is very straight forward, the variable names
+		// are self explained. So, no comments
 		int carry =  0;
 		long product = 0;
 		int prodDigit = 0;
@@ -205,6 +240,7 @@ public class NaturalNumber  {
 			carry = (int)(product / base);
 		}
 		result.getCoefficients().addLast(carry);
+		// Append zero bits
 		for (int j = 0; j<startBit; j++){
 			result.getCoefficients().addFirst(new Integer(0));
 		}
@@ -230,6 +266,8 @@ public class NaturalNumber  {
 		//    ADD YOUR CODE HERE
 		NaturalNumber digitProduct = new NaturalNumber(this.base);
 		for (int i = 0; i < second.getCoefficients().size(); i++){
+			// add each single multiplication step
+			
 			digitProduct = this.singleMultiplyStep(second.getCoefficients().get(i),i);
 			product = product.add(digitProduct);			
 			
@@ -237,6 +275,7 @@ public class NaturalNumber  {
 		return product;
 	}
 	
+			
 
 	//  The divide method divides 'this' by 'second' i.e. this/second.   
 	//  'this' is the "dividend", 'second' is the "divisor".
@@ -247,13 +286,77 @@ public class NaturalNumber  {
 	
 	public NaturalNumber divide( NaturalNumber  divisor ) throws Exception{
 		
-		//  initialize quotient as an empty list of coefficients
+		// First check the if the variable passed is sane
+
+		if (divisor.compareTo(new NaturalNumber(this.base, new int[] {0}))==0)
+			throw new IllegalArgumentException("Divisor insane");
 		
+		//  initialize quotient as an empty list of coefficients
 		NaturalNumber  quotient = new NaturalNumber(this.base);
 		
-		//   ADD YOUR CODE HERE.		
+		if (this.getCoefficients().getLast()==0){
+			// if the divident is zero
+			// there's nothing to calculate
+			// the answer will be zero	
+			quotient = new NaturalNumber(this.base, new int[]{0});
+			return quotient;
+		}		
+		
+		//First I need to get the coefficient list of the
+		//divident in reverse order, 
+		//that is: starting from the leading number
+		//because that's how long division work
+		//
+		//Useless to write long reverse sequence
+		//A reversed iterator should do 
+		//
 
-		return quotient;		
+		Iterator<Integer> reversedDividentCoefficients = 
+			this.coefficients.descendingIterator();
+		int bi = 0;
+		NaturalNumber q;
+		int next = 0;
+		NaturalNumber remainder;
+		NaturalNumber biNaturalNumber = new NaturalNumber(this.base);
+		NaturalNumber multipliedResult = new NaturalNumber(this.base);
+		LinkedList<Integer> quotientCoefficients = new LinkedList<Integer>();
+		while (reversedDividentCoefficients.hasNext()){
+			// bi is the current coefficients
+			
+			bi = (int)reversedDividentCoefficients.next();
+			biNaturalNumber =new NaturalNumber(this.base,new int[] {bi}).add(biNaturalNumber);
+			//System.out.println("**Begin**biNaturalNumber"+ biNaturalNumber.toString());
+			// we are gonna find a number q such that
+			// divisor * q does not exeed bi
+			// this number will be the first number
+			// of the result.
+			q = new NaturalNumber(this.base, new int []{0});
+			while (divisor.multiply(q).compareTo(biNaturalNumber)<=0){
+				
+				q=q.add(new NaturalNumber(this.base,new int[] {1}));
+				//System.out.println("*****" + q.toString());
+				if ((divisor.multiply(q).compareTo(biNaturalNumber))>0){
+					q=q.subtract(new NaturalNumber(this.base,new int[]{1}));	
+					break;
+				}
+				//System.out.println("***" + q.toString());
+				
+			}
+			// now bring the remainder into next calculation
+			
+			//System.out.println("**" + q.toString());
+			multipliedResult = divisor.multiply(q);
+			remainder = biNaturalNumber.subtract(multipliedResult);
+			biNaturalNumber = remainder.multiplyByBaseToThePower(1);
+			quotientCoefficients.addFirst(q.getCoefficients().getFirst());
+			/*System.out.println("multipliedResult" + multipliedResult.toString());
+			System.out.println("remainder" + remainder.toString());
+			System.out.println("biNaturalNumber"+ biNaturalNumber.toString());
+			*/
+		}
+		quotientCoefficients = this.trimLeadingZero(quotientCoefficients);
+		quotient.setCoefficients(quotientCoefficients);
+		return quotient;	
 	}
 
 	/*
